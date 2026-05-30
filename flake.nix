@@ -39,12 +39,6 @@
           ];
         };
 
-        apps.default = {
-          type = "app";
-          program = pkgs.lib.getExe flake-start;
-          meta.description = "Run flake-start";
-        };
-
         formatter = pkgs.nixfmt;
       }
     );
