@@ -1,0 +1,40 @@
+name: Test init-template script
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  init-template:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v31
+        with:
+          github_access_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check init-template.sh
+        run: |
+          if ./init-template.sh 'bad/name'; then
+            echo "init-template.sh accepted an invalid project name" >&2
+            exit 1
+          fi
+
+          tmp="$(mktemp -d)"
+          cp init-template.sh "$tmp/"
+          if "$tmp/init-template.sh" valid-name; then
+            echo "init-template.sh ran outside a git checkout" >&2
+            exit 1
+          fi
+
+          ./init-template.sh my-test_app
+
+      - name: Build generated project
+        run: |
+          git add -A
+          nix flake check -L
+          nix build -L
+          nix run -L
