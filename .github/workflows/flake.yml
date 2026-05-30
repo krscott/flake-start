@@ -18,7 +18,7 @@ jobs:
 
       - name: Check format
         run: |
-          nix fmt
+          nix fmt -- default.nix flake.nix
           git diff --exit-code
 
   build:

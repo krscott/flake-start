@@ -12,11 +12,11 @@ stdenv.mkDerivation {
     runHook preInstall
 
     mkdir -p "$out/bin"
-    cat >"$out/bin/flake-start" <<'EOF'
-#!/usr/bin/env bash
-set -euo pipefail
-echo "Hello from flake-start"
-EOF
+    printf '%s\n' \
+      '#!/usr/bin/env bash' \
+      'set -euo pipefail' \
+      'echo "Hello from flake-start"' \
+      >"$out/bin/flake-start"
     chmod +x "$out/bin/flake-start"
 
     runHook postInstall
