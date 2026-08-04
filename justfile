@@ -29,6 +29,11 @@ format *files:
         fi
 
         case "$file" in
+            justfile|Justfile|.justfile)
+                if (($# != 0)); then
+                    just --fmt
+                fi
+            ;;
             *.sh)
                 shfmt -w -i 4 "$file"
             ;;
