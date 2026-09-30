@@ -39,7 +39,7 @@ _format mode *files:
         fi
 
         case "$file" in
-            justfile|Justfile|.justfile)
+            justfile|Justfile|.justfile|*/justfile|*/Justfile|*/.justfile)
                 if [[ "$mode" == check ]]; then
                     just --unstable --fmt --check --justfile "$file"
                 else
@@ -53,7 +53,7 @@ _format mode *files:
                     nixfmt "$file"
                 fi
             ;;
-            *.sh|.githooks/*)
+            *.sh|.githooks/*|*/.githooks/*)
                 if [[ "$mode" == check ]]; then
                     shfmt -d -i 4 "$file"
                 else
@@ -76,7 +76,7 @@ lint:
 
 # Run non-mutating formatting, shell, and Nix checks.
 check: format-check lint
-    nix flake check -L
+    nix flake check -L --no-update-lock-file
 
 # Format staged files for git pre-commit.
 pre-commit:
