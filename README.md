@@ -8,6 +8,10 @@ To start a project with this template, run:
 ./init-template.sh new_project_name
 ```
 
+Start from a clean Git checkout and use a name beginning with an ASCII letter.
+Initialization replaces this README with [README_TEMPLATE.md](README_TEMPLATE.md)
+and removes the template license. Choose a license for your project afterward.
+
 ## Development
 
 Update dependencies:
@@ -35,4 +39,9 @@ Useful development commands:
 just build
 just run
 just format
+just check
 ```
+
+`just build` and `just run` use the local build path inside `nix develop`.
+`just check` checks tracked files with the formatters and ShellCheck, then runs
+`nix flake check`. Install the formatting hook with `just install-hooks`.

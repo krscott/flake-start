@@ -12,13 +12,23 @@ run: build
 
 # Format files, or all tracked files when no files are provided.
 format *files:
+    @just _format write "$@"
+
+# Check formatting without changing files.
+format-check *files:
+    @just _format check "$@"
+
+[private]
+_format mode *files:
     #!/usr/bin/env bash
     set -euo pipefail
 
     declare -a files=()
+    mode="$1"
+    shift
 
     if (($# == 0)); then
-        mapfile -t files < <(git ls-files)
+        mapfile -d '' -t files < <(git ls-files -z)
     else
         files=("$@")
     fi
@@ -30,15 +40,43 @@ format *files:
 
         case "$file" in
             justfile|Justfile|.justfile)
-                if (($# != 0)); then
-                    just --fmt
+                if [[ "$mode" == check ]]; then
+                    just --unstable --fmt --check --justfile "$file"
+                else
+                    just --unstable --fmt --justfile "$file"
                 fi
             ;;
-            *.sh)
-                shfmt -w -i 4 "$file"
+            *.nix)
+                if [[ "$mode" == check ]]; then
+                    nixfmt --check "$file"
+                else
+                    nixfmt "$file"
+                fi
+            ;;
+            *.sh|.githooks/*)
+                if [[ "$mode" == check ]]; then
+                    shfmt -d -i 4 "$file"
+                else
+                    shfmt -w -i 4 "$file"
+                fi
             ;;
         esac
     done
+
+# Check tracked shell scripts and Git hooks.
+lint:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    while IFS= read -r -d '' file; do
+        [[ -f "$file" ]] || continue
+        case "$file" in
+            *.sh|.githooks/*) shellcheck "$file" ;;
+        esac
+    done < <(git ls-files -z)
+
+# Run non-mutating formatting, shell, and Nix checks.
+check: format-check lint
+    nix flake check -L
 
 # Format staged files for git pre-commit.
 pre-commit:

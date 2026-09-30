@@ -23,12 +23,12 @@
       let
         pkgs = nixpkgs.legacyPackages.${system};
 
-        flake-start = pkgs.callPackage ./default.nix { };
+        package = pkgs.callPackage ./default.nix { };
       in
       {
         packages = {
-          inherit flake-start;
-          default = flake-start;
+          "flake-start" = package;
+          default = package;
         };
 
         devShells.default = pkgs.mkShell {
@@ -36,6 +36,8 @@
             just
             nixfmt
             shfmt
+            shellcheck
+            bash
           ];
         };
 

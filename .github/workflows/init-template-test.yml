@@ -18,10 +18,30 @@ jobs:
 
       - name: Check init-template.sh
         run: |
-          if ./init-template.sh 'bad/name'; then
-            echo "init-template.sh accepted an invalid project name" >&2
+          for name in 'bad/name' '123-demo' '-demo' '_demo' ''; do
+            if ./init-template.sh "$name"; then
+              echo "init-template.sh accepted invalid name: $name" >&2
+              exit 1
+            fi
+          done
+          git diff --exit-code
+
+          printf '\nDirty checkout test\n' >> README.md
+          cp README.md "$RUNNER_TEMP/dirty-readme"
+          if ./init-template.sh valid-name; then
+            echo "init-template.sh accepted a dirty checkout" >&2
             exit 1
           fi
+          cmp README.md "$RUNNER_TEMP/dirty-readme"
+          test -f LICENSE
+          git restore README.md
+
+          touch untracked-test
+          if ./init-template.sh valid-name; then
+            echo "init-template.sh accepted an untracked file" >&2
+            exit 1
+          fi
+          rm untracked-test
 
           tmp="$(mktemp -d)"
           cp init-template.sh "$tmp/"
@@ -31,10 +51,20 @@ jobs:
           fi
 
           ./init-template.sh my-test_app
+          test -x .githooks/pre-commit
+          test ! -e init-template.sh
+          test ! -e LICENSE
+          test ! -e README_TEMPLATE.md
+          test ! -e .github/workflows/init-template-test.yml
+          grep -q '^# my-test-app$' README.md
+          if grep -q 'init-template.sh' README.md; then
+            echo "Generated README still references the initializer" >&2
+            exit 1
+          fi
 
       - name: Build generated project
         run: |
           git add -A
-          nix flake check -L
+          nix develop -c just check
           nix build -L
           nix run -L
