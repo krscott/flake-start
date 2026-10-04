@@ -10,6 +10,17 @@ build:
 run: build
     ./hello.sh
 
+# Test the locally built program.
+test: build
+    #!/usr/bin/env bash
+    set -euo pipefail
+    expected='Hello from hello.sh'
+    actual=$(./hello.sh)
+    if [[ "$actual" != "$expected" ]]; then
+        printf 'Expected: %s\nActual: %s\n' "$expected" "$actual" >&2
+        exit 1
+    fi
+
 # Format files, or all tracked files when no files are provided.
 format *files:
     @just _format write "$@"

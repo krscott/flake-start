@@ -32,6 +32,8 @@
         };
 
         devShells.default = pkgs.mkShell {
+          inputsFrom = [ package ];
+
           packages = with pkgs; [
             just
             nixfmt

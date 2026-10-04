@@ -6,7 +6,10 @@
 stdenv.mkDerivation {
   name = "flake-start";
 
-  dontUnpack = true;
+  src = lib.cleanSource ./.;
+
+  nativeBuildInputs = [ ];
+  buildInputs = [ ];
 
   installPhase = ''
     runHook preInstall
