@@ -9,12 +9,14 @@ Enter the development shell with `nix develop`, then run:
 ```sh
 just build
 just run
+just test
 just format
 just check
 ```
 
 `just build` and `just run` use the local build path. To build or run the Nix
 package, use `nix build` or `nix run`.
+`just test` builds the local program and checks its output.
 
 `just check` checks formatting, runs ShellCheck, and validates the flake without
 rewriting source files. Formatting and shell checks cover tracked files; stage

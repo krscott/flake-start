@@ -38,10 +38,12 @@ Useful development commands:
 ```sh
 just build
 just run
+just test
 just format
 just check
 ```
 
 `just build` and `just run` use the local build path inside `nix develop`.
+`just test` builds the local program and checks its output.
 `just check` checks tracked files with the formatters and ShellCheck, then runs
 `nix flake check`. Install the formatting hook with `just install-hooks`.
